@@ -4,15 +4,19 @@ require 'station'
 
 describe Journey do
   subject(:journey) {described_class.new}
+  let(:station) {double :station}
+  let(:card) {double :card, history: []}
 
 
-    station = Station.new
-    card = Oystercard.new
-    card.top_up(10)
+  before (:each) do
+    # allow(card).to receive(:balance){10}
+    allow(card).to receive(:balance=){10}
+  end
 
 
-  # let(:station) {double :station}
-  # let(:card) {double :card}
+    # station = Station.new
+    # card = Oystercard.new
+    # card.top_up(10)
 
   context 'starting and finishing' do
 
@@ -25,14 +29,14 @@ describe Journey do
   context 'current journey info' do
 
     it 'touching in registers that the card is in journey' do
-      card.touch_in(station)
+      journey.touch_in(station, card)
       expect(journey.in_journey?).to eq true
     end
 
 
     it 'touching out registers the card as no longer being in journey' do
-      card.touch_in(station)
-      card.touch_out(station)
+      journey.touch_in(station, card)
+      journey.touch_out(station, card)
       expect(journey.in_journey?).to eq false
     end
 
@@ -41,21 +45,30 @@ describe Journey do
   context 'journey status and history' do
 
     it 'records the entry station on touch in' do
-      card.touch_in(station)
-      expect(journey.entry_station).to eq station
+      journey.touch_in(station, card)
+      expect(journey.current_journey[:entry]).to eq station
     end
 
     it 'expects entry station to be nil after touch out' do
-      card.touch_in(station)
-      card.touch_out(station)
-      expect(journey.entry_station). to eq nil
+      journey.touch_in(station, card)
+      journey.touch_out(station, card)
+      expect(journey.current_journey[:entry]). to eq nil
     end
 
     it 'stores entry station in current journey on touch in' do
-      card.touch_in(station)
+      journey.touch_in(station, card)
       expect(journey.current_journey).to include entry: station, exit: nil
     end
 
+    context 'penalty fares' do
+
+    it 'charges penalty fare on double touch in' do
+        journey.touch_in(station, card)
+        journey.touch_in(station, card)
+        expect(card::balance).to eq(4)
+      end
+
+    end
 
 
   end

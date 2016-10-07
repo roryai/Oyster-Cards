@@ -6,7 +6,7 @@ describe Station do
 
     it 'a new station has a name' do
       stat = Station.new
-      expect(stat.name).to eq "brixton"
+      expect(stat.name).to eq "station"
     end
 
     it 'a new station has a zone' do

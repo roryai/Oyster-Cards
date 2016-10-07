@@ -1,0 +1,44 @@
+This code:
+
+describe Journey do
+  subject(:journey) {described_class.new}
+  let(:station) {double :station}
+  let(:card) {double :card, history: [], balance: 10}
+
+was failing with the following error:
+
+1) Journey current journey info touching out registers the card as no longer being in journey
+     Failure/Error: card::balance -= FARE
+       #<Double :card> received unexpected message :balance= with (9)
+     # ./lib/journey.rb:28:in `fare'
+     # ./lib/journey.rb:24:in `touch_out'
+     # ./spec/journey_spec.rb:38:in `block (3 levels) in <top (required)>'
+
+on the following test:
+
+it 'touching out registers the card as no longer being in journey' do
+  journey.touch_in(station, card)
+  journey.touch_out(station, card)
+  expect(journey.in_journey?).to eq false
+end
+
+We removed 'balance: 10' from the double and added this line in a before block:
+
+allow(card).to receive(:balance){10}
+
+This gave us different errors on many more tests, all of which looked like this:
+
+1) Journey current journey info touching in registers that the card is in journey
+     Failure/Error: fail "Insufficient funds for journey" if card::balance < Oystercard::MIN_BALANCE
+       #<Double :card> received unexpected message :balance with (no args)
+     # ./lib/journey.rb:17:in `touch_in'
+     # ./spec/journey_spec.rb:32:in `block (3 levels) in <top (required)>'
+
+We then included another line in the before block. These two lines together allow thet ests to pass,
+but each of them on their own still fails the tests. Why?!:
+
+
+before (:each) do
+  allow(card).to receive(:balance){10}
+  allow(card).to receive(:balance=){10}
+end
