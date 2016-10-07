@@ -9,14 +9,14 @@ describe Journey do
 
 
   before (:each) do
-    # allow(card).to receive(:balance){10}
+    allow(card).to receive(:balance){10}
     allow(card).to receive(:balance=){10}
   end
 
 
     # station = Station.new
     # card = Oystercard.new
-    # card.top_up(10)
+
 
   context 'starting and finishing' do
 
@@ -62,7 +62,8 @@ describe Journey do
 
     context 'penalty fares' do
 
-    it 'charges penalty fare on double touch in' do
+    xit 'charges penalty fare on double touch in' do
+        card.top_up(10)
         journey.touch_in(station, card)
         journey.touch_in(station, card)
         expect(card::balance).to eq(4)
